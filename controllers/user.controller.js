@@ -39,12 +39,10 @@ const postUser = async (req = request, res = response) => {
   });
 
   //encrypt pass
-
   const salt = bcrypt.genSaltSync(11); // 10 by default
   user.password = bcrypt.hashSync(password, salt);
 
   //save DB
-
   await user.save();
 
   res.json({
@@ -73,9 +71,12 @@ const putUser = async (req = request, res = response) => {
 };
 
 //DELETE USER
-const deleteUser = (req = request, res = response) => {
+const deleteUser = async (req = request, res = response) => {
+  const { id } = req.params;
+
+  const a = await User.findByIdAndUpdate(id, { status: false }, { new: true });
   res.json({
-    type: `This is a HTTP ${req.method} request - controller`,
+    a,
   });
 };
 
