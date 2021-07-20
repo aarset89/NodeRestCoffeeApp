@@ -8,6 +8,7 @@ const getUsers = (req = request, res = response) => {
   });
 };
 
+//CREATE user
 const postUser = async (req = request, res = response) => {
   const { name, email, password, role } = req.body;
   const user = new User({
@@ -16,13 +17,7 @@ const postUser = async (req = request, res = response) => {
     password,
     role,
   });
-  //check if email already exist
-  const exist = await User.findOne({ email });
-  if (exist) {
-    return res.status(400).json({
-      msh: 'Email already exist',
-    });
-  }
+
   //encrypt pass
 
   const salt = bcrypt.genSaltSync(11); // 10 by default
@@ -39,12 +34,24 @@ const postUser = async (req = request, res = response) => {
   // res.end();
 };
 
-const putUser = (req = request, res = response) => {
+//UPDATE USER
+const putUser = async (req = request, res = response) => {
+  const { id } = req.params;
+  const { password, google, correo, ...rest } = req.body;
+
+  if (password) {
+    const salt = bcrypt.genSaltSync(11); // 10 by default
+    rest.password = bcrypt.hashSync(password, salt);
+  }
+  const userInDb = await User.findByIdAndUpdate(id, rest, { new: true });
+
   res.json({
     type: `This is a HTTP ${req.method} request - controller`,
+    userInDb,
   });
 };
 
+//DELETE USER
 const deleteUser = (req = request, res = response) => {
   res.json({
     type: `This is a HTTP ${req.method} request - controller`,

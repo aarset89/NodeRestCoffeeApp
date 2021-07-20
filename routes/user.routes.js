@@ -2,14 +2,13 @@ const { Router } = require('express');
 const { check } = require('express-validator');
 
 const { validation } = require('../middlewares/fieldsValidation');
+const { bdRoleValidator, emailExist } = require('../helpers/dbValidator');
 const {
   getUsers,
   postUser,
   putUser,
   deleteUser,
 } = require('../controllers/user.controller');
-const Role = require('../models/role.model');
-const { bdRoleValidator } = require('../helpers/dbValidator');
 
 const router = Router();
 
@@ -19,6 +18,7 @@ router.post(
   [
     check('name', 'Name is a required field').not().isEmpty(),
     check('email', 'Please insert a valid email').isEmail(),
+    check('email').custom(emailExist),
     check('password', 'Password must be at least 6 length char').isLength({
       min: 6,
     }),
