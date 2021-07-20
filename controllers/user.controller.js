@@ -2,10 +2,30 @@ const { response, request } = require('express');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user.model');
 
-const getUsers = (req = request, res = response) => {
-  res.json({
-    type: `This is a HTTP ${req.method} request - controller`,
-  });
+//GET List of users
+const getUsers = async (req = request, res = response) => {
+  let { limit, from } = req.query;
+  const userStatus = { status: true };
+  if (isNaN(Number(limit))) {
+    limit = 5;
+  }
+  if (isNaN(Number(from))) {
+    from = 0;
+  }
+
+  //In the comment block, as there are two await functions
+  // const users = await User.find(userStatus)
+  //   .skip(Number(from))
+  //   .limit(Number(limit));
+
+  // const total = await User.countDocuments(userStatus);
+
+  const [total, users] = await Promise.all([
+    User.countDocuments(userStatus),
+    User.find(userStatus).skip(Number(from)).limit(Number(limit)),
+  ]);
+
+  res.json({ total, users });
 };
 
 //CREATE user
@@ -36,6 +56,7 @@ const postUser = async (req = request, res = response) => {
 
 //UPDATE USER
 const putUser = async (req = request, res = response) => {
+  console.log('POASDJAKJDHQ aca');
   const { id } = req.params;
   const { password, google, correo, ...rest } = req.body;
 

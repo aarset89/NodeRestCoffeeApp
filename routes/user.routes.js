@@ -1,8 +1,15 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
 
-const { validation } = require('../middlewares/fieldsValidation');
-const { bdRoleValidator, emailExist } = require('../helpers/dbValidator');
+const {
+  fieldsValidation,
+  passwordValidation,
+} = require('../middlewares/fieldsValidation');
+const {
+  bdRoleValidator,
+  emailExist,
+  userExistById,
+} = require('../helpers/dbValidator');
 const {
   getUsers,
   postUser,
@@ -32,11 +39,26 @@ router.post(
     //   'USER_ROLE_2',
     // ]),
 
-    validation,
+    fieldsValidation,
   ],
   postUser
 );
-router.put('/:id', putUser);
+router.put(
+  '/:id',
+  [
+    check('id', 'The id given is not a valid id').isMongoId(),
+    check('id').custom(userExistById),
+    // check('password','Password must be at least 6 length char').isLength({
+    //   min: 6,
+    // }),
+    check('password').optional().custom(passwordValidation),
+
+    check('role').custom(bdRoleValidator),
+
+    fieldsValidation,
+  ],
+  putUser
+);
 router.delete('/', deleteUser);
 
 module.exports = router;
