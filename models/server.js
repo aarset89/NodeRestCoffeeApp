@@ -32,6 +32,7 @@ class Server {
   routes() {
     //In order to call the routes, it is necessary to create a new middleware calling routes file
     this.app.use('/api/user', require('../routes/user.routes'));
+    this.app.use('/api/auth', require('../routes/auth.routes'));
   }
 
   listen() {
